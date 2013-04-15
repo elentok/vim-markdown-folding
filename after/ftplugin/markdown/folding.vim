@@ -45,7 +45,8 @@ function! HeadingDepth(lnum)
 endfunction
 
 function! LineIsFenced(lnum)
-  if exists("b:current_syntax") && b:current_syntax ==# 'markdown'
+  if exists("b:current_syntax") &&
+    (b:current_syntax ==# 'ghmarkdown' || b:current_syntax ==# 'markdown')
     " It's cheap to check if the current line has 'markdownCode' syntax group
     return s:HasSyntaxGroup(a:lnum, 'markdownCode')
   else
@@ -106,8 +107,14 @@ let &l:foldexpr =
   \ : 'StackedMarkdownFolds()'
 
 " Teardown {{{1
-let b:undo_ftplugin .= '
+let teardown = '
   \ | setlocal foldmethod< foldtext< foldexpr<
   \ | delcommand FoldToggle
   \ '
+
+if exists('b:undo_ftplugin')
+  let b:undo_ftplugin .= teardown
+else
+  let b:undo_ftplugin = teardown
+end
 " vim:set fdm=marker:
